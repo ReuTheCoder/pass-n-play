@@ -1,0 +1,206 @@
+/* ====================================
+   1. Reset
+==================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* ====================================
+   2. Variables
+==================================== */
+:root { /* NTS Use these for future stylesheets */
+    --background: #fcfaf2;
+    --surface: #ffffff;
+    --text: #2b2b2b;
+
+    --red: #e60012;
+
+    --gray: #8e8e93;
+
+    --shadow: #2b2b2b;
+}
+/* ====================================
+   3. Typography and Layout
+==================================== */
+body {
+    font-family: 'Baloo Da 2', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* NTS: extra stuff is system fonts - ensures fonts are clean if user goes offline */
+    background-color: #fcfaf2;
+    color: #2b2b2b; 
+    line-height: 1.5;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Note to self: Viewport Height, a relative measurement unit equal to 1% of the total height of the browser's visible screen area. Regardless fof parent */
+    -webkit-font-smoothing: antialiased; /* Keeps stuff clean looking on iPhone */
+}
+
+header {
+    text-align: center;
+    margin: 0 auto 48px auto; 
+    max-width: 900px; /* Matches main */        
+    width: 100%;   
+    padding: 40px 16px;
+    background-color: #ffffff;
+    border-radius: 24px;
+    border: 3px solid #2b2b2b;
+    box-shadow: 0 8px 0 #2b2b2b; /* Neo-Brutalism style! */
+}
+
+header p:nth-of-type(1) { /* NTS: targets only the first paragrapgh element - nothing else */
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-bottom: 12px;
+}
+
+header p:nth-of-type(2) {
+    font-size: 1rem;
+    color: #6e6e73;
+    background-color: #f2f2f7;
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 99px; 
+    font-weight: 500;
+}
+
+h1 {
+    font-family: 'Belanosima', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color:#e60012;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+    -webkit-text-stroke: 2px #2b2b2b;
+}
+
+main {
+    flex: 1;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+/* ====================================
+   4. Game Library - Grid Setup
+==================================== */
+/* grid setup */
+.game-library {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 650px) {
+    .game-library {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.game-library h2 {
+    grid-column: 1/ -1;
+    font-family: 'Belanosima', sans-serif;
+    font-size: 1.75rem;
+    color:#2b2b2b;
+    margin-bottom: 8px;
+}
+/* ====================================
+   5. Game Cards
+==================================== */
+.game-card {
+    background-color: #ffffff;
+    border: 3px solid #2b2b2b; 
+    border-radius: 20px;       
+    padding: 28px;
+    text-decoration: none;    
+    color: inherit;            /* Prevents blue link text */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    
+
+    box-shadow: 0 6px 0 #2b2b2b; 
+    transition: transform 0.15s ease, box-shadow 0.15s ease; /* Makes the game cards look like buttons! */
+}
+
+a.game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 0 #2b2b2b;
+}
+
+a.game-card:active {
+    transform: translateY(2px);
+    box-shadow: 0 4px 0 #2b2b2b; 
+}
+
+.game-card h3 {
+    font-family: 'Belanosima', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 12px; 
+}
+
+.tagline {
+    font-size: 1rem;
+    color: #515154;
+    margin-bottom: 24px;
+    flex-grow: 1;  /* NTS: Pushes content down evenly */
+}
+
+.game-info {
+    font-size: 0.9rem;
+    font-weight: 700;
+    background-color: #f2f2f7;
+    padding: 10px 16px;
+    border-radius: 12px;
+    display: inline-block;
+    align-self: flex-start;
+    border: 2px solid #2b2b2b;
+}
+    /* accents - copy these three lines to style accents for any new cards*/
+.game-card[href*="secret-saboteur"] {
+    background-color: #e6f9ff;
+}
+.game-card[href*="secret-saboteur"]:hover {
+    border-color: #00b4d8;
+}
+.game-card[href*="secret-saboteur"] .game-info {
+    background-color: #00b4d8;
+    color: #ffffff;
+}
+
+.game-card[href*="imposter"] {
+    background-color: #f4fbe6;
+}
+.game-card[href*="imposter"]:hover {
+    border-color: #74c600;
+}
+.game-card[href*="imposter"] .game-info {
+    background-color: #74c600;
+    color: #ffffff;
+}
+
+div.game-card {
+    background-color: #f5f5f7;
+    border-style: dashed;
+    border-color: #aeaeac;
+    box-shadow: none;
+    cursor: not-allowed; /* Gives that blocked off effect */
+}
+div.game-card h3 {
+    color: #8e8e93;
+}
+div.game-card .tagline {
+    color: #8e8e93;
+}
+
+/* ====================================
+   6. Footer - lowkey might be the only page to have this
+==================================== */
+footer {
+    text-align: center;
+    padding: 40px 0 20px 0;
+    margin-top: 60px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #8e8e93;
+}
