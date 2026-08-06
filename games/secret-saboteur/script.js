@@ -32,7 +32,6 @@ const nextPlayerBtn = document.getElementById("next-player-btn");
 
 //Discussion Screen
 const promptText = document.getElementById("prompt-text");
-const scaleBar = document.getElementById("scale-bar");
 const lowLabel = document.getElementById("low-label");
 const highLabel = document.getElementById("high-label");
 
@@ -227,7 +226,6 @@ document.getElementById("guess-plus").addEventListener("click", () => adjustGues
 document.getElementById("guess-minus").addEventListener("click", () => adjustGuessNumber(-1));
 
 saboteurInfoBtn.addEventListener("click", openModal);
-closeModalBtn.addEventListener("click", closeModal);
 modalAckBtn.addEventListener("click", closeModal);
 newGameBtn.addEventListener("click", resetGame);
 
@@ -235,6 +233,20 @@ saboteurModal.addEventListener("click", function(event) {
     if (event.target === saboteurModal) {
         closeModal();
     }
+});
+
+randomizePlayersBtn.addEventListener("click", () => {
+    randomizePlayersBtn.classList.toggle("active-random");
+    const selectorWrap = document.getElementById("saboteur-selector-wrap");
+
+    if (randomizePlayersBtn.classList.contains("active-random")) {
+        selectorWrap.classList.add("hidden");
+        game.saboteurCount = "random";
+    } else {
+        selectorWrap.classList.remove("hidden");
+        game.saboteurCount = parseInt(saboteurInput.value, 10);
+    }
+    validateSetup();
 });
 
 /* ==========================
@@ -300,13 +312,25 @@ function updateSaboteurControls() {
     } else {
         saboteurSection.classList.add("hidden");
     }
+    const selectorWrap = document.getElementById("saboteur-selector-wrap");
 
     if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers) {
         saboteurPlusBtn.disabled = false;
+        randomizePlayersBtn.classList.remove("hidden");
+
+        if(randomizePlayersBtn.classList.contains("active-random")) {
+            selectorWrap.classList.add("hidden");
+        } else {
+            selectorWrap.classList.remove("hidden");
+        }
     } else {
         saboteurInput.value = 1; //default value if player count is below 6
         game.saboteurCount = 1;
         saboteurPlusBtn.disabled = true;
+
+        randomizePlayersBtn.classList.add("hidden");
+        randomizePlayersBtn.classList.remove("active-random");
+        selectorWrap.classList.remove("hidden");
     }
 }
 
@@ -403,7 +427,6 @@ function attachNameInputListeners() {
     });
 } //should add live validation
 
-// randomizePlayerCount()
 
 /* ==========================
     Role Generation
@@ -411,36 +434,42 @@ function attachNameInputListeners() {
 function assignRoles() {
     game.roles = [];
 
-    game.roles[0] = "Guesser";
-
-    let remainingIndices = [];
+    let allIndices = [];
     for (let i = 1; i < game.playerCount; i++) {
-        remainingIndices.push(i);
+        allIndices.push(i);
+    }
+
+    const guesserRandomIndex = Math.floor(Math.random() * allIndices.length); // one player is assigned guesser
+    const guesserPlayerIndex = allIndices.splice(guesserRandomIndex, 1)[0];
+    game.roles[guesserPlayerIndex] = "Guesser";
+
+    let activeSaboteurTarget = game.saboteurCount; //game logic, 6+ players mean 2 or random sabs
+
+    if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers && randomizePlayersBtn.classList.contains("active-random")) {
+        activeSaboteurTarget = Math.floor(Math.random() * 2) + 1;
+        saboteurInput.value = activeSaboteurTarget;
     }
 
     let selectedSaboteurs = [];
-    while (selectedSaboteurs.length < game.saboteurCount) {
-        const randomIndex = Math.floor(Math.random()*remainingIndices.length);
-        const playerIndex = remainingIndices.splice(randomIndex, 1)[0];
-        selectedSaboteurs.push(playerIndex);
+    while (selectedSaboteurs.length < activeSaboteurTarget && allIndices.length > 0) {
+        const sabRandomIndex = Math.floor(Math.random() * allIndices.length);
+        const sabPlayerIndex = allIndices.splice(sabRandomIndex, 1)[0];
+        selectedSaboteurs.push(sabPlayerIndex);
     }
 
-    for(let i = 0; i < game.playerCount; i++) {
-        if (i === 0) {
-            game.roles[i] = "Guesser"; 
-        } else if (selectedSaboteurs.includes(i)) {
-            game.roles[i] = "Saboteur";
-        } else {
-            game.roles[i] = "Teammate";
-        }
-    }
+    allIndices.forEach(playerIndex => {
+        game.roles[playerIndex] = "Teammate";
+    });
+
+    selectedSaboteurs.forEach(playerIndex => {
+        game.roles[playerIndex] = "Saboteur";
+    });
 }
 
 function assignSecretNumber() {
     game.secretNumber = Math.floor(Math.random() * (SETTINGS.maxGuess - SETTINGS.minGuess + 1)) + SETTINGS.minGuess;
 }
-// choosePrompt()
-// shufflePlayers();
+
 
 /* ==========================
     Game Generation
@@ -486,15 +515,36 @@ function nextPlayer() {
     }
 }
 
+/* ==========================
+    Discussion
+========================== */
+
 function initializeDiscussionPhase() {
     rerollPrompt();
+
+    let potentialLeaders = [];
+    game.roles.forEach((role, index) => {
+        if (role !== "Guesser") {
+            potentialLeaders.push(game.players[index]);
+        }
+    });
+
+    const randomLeader = potentialLeaders[Math.floor(Math.random() * potentialLeaders.length)];
+
+    // discussion promt message frame banner
+    const discussionInstruction = document.querySelector("#discussion-screen .game-instruction") || document.createElement("p");
+    discussionInstruction.className = "game-instruction";
+    discussionInstruction.style.marginBottom = "16px";
+    discussionInstruction.innerHTML = `🗣️ <strong>${randomLeader}</strong> must start the discussion phase!`;
+
+    const discussionScreen = document.getElementById("discussion-screen");
+    if (!document.querySelector("#discussion-screen .game-instruction")) {
+        discussionScreen.insertBefore(discussionInstruction, discussionScreen.firstChild);
+    }
 
     showScreen("discussion-screen");
 }
 
-/* ==========================
-    Discussion
-========================== */
 function rerollPrompt() {
     if (prompts.length === 0) return;
 
@@ -512,16 +562,23 @@ function rerollPrompt() {
     Guessing
 ========================== */
 function showGuessScreen() {
-    game.guessedNumber = null;
+    game.guessedNumber = 5;
     game.guessedSaboteurs = [];
 
     const guessInput = document.getElementById("guess-number");
-    guessInput.value = "-";
+    guessInput.value = "5";
 
     document.getElementById("guesser-count-error").classList.add("hidden");
 
-    guessPrompt.textContent = `Review the discussion details for: "${game.prompt.title}".`;
-    likelihoodHint.textContent = `The scale boundaries range from [1: ${game.prompt.low}] up to [10: ${game.prompt.high}].`;
+    guessPrompt.textContent = `Review the discussion details for:
+    "${game.prompt.title}".`;
+    
+    likelihoodHint.innerHTML = `
+        <div class="organized-hint-box">
+            <span class="hint-pill low"> [1]: ${game.prompt.low}</span>
+            <span class="hint-pill high">[10]: ${game.prompt.high}</span>
+        </div>
+    `;
 
     buildSaboteurChoices();
 
@@ -682,24 +739,10 @@ function resetGame() {
     saboteurInput.value = 1;
 
     handleSetupUpdates();
+    const inputs = playerInputs.querySelectorAll("input"); //clear names when New Game starts
+    inputs.forEach(input => { input.value =""; });
+
+    randomizePlayersBtn.classList.remove("active-random");
 
     showScreen("setup-screen");
 }
-
-/* ==========================
-    Helper Functions
-========================== */
-/*
-
-function randomInt(min, max) {
-
-}
-
-function shuffle(array) {
-
-}
-
-function clamp(value, min, max) {
-
-}
-*/
