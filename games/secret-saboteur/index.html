@@ -10,7 +10,7 @@
 
         <title> Play - Secret Saboteur </title>
 
-        <link rel="stylesheet" href="../../css/games.css">
+        <link rel="stylesheet" href="../../css/game.css">
         <script src="script.js" defer></script>
     </head>
     <body  style="--accent-primary: #00b4d8; --accent-light: #e6f9ff;">
@@ -21,94 +21,67 @@
         </header>
 
         <main>
-            <!--
-
-                SCREENS
-
-                1. Setup
-
-                2. Player Names
-
-                3. Role Reveal
-
-                4. Discussion
-
-                5. Guess
-
-                6. Results
--->
-
-            <section id="setup-screen" class="screen" data-title="Game Setup"> 
+        <!-- ===================================
+            Setup & Player Names
+        ==================================== -->
+            <section id="setup-screen" class="screen" data-title="Game Setup">
+                
                 <section id="player-count-section" class="setup-section">
                     <h3>How Many Players?</h3>
-                    <div class="option-grid">
-                        <button type="button" class="option-btn player-count-btn" data-players="3">3</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="4">4</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="5">5</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="6">6</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="7">7</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="8">8</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="9">9</button>
-                        <button type="button" class="option-btn player-count-btn" data-players="10">10</button>
+                    <div class="quantity-selector">
+                        <button type="button" id="players-minus"> - </button> 
+                        <input id="player-count" type="number" min="3" max="10" value="4" >
+                        <button type="button" id="players-plus"> + </button> 
                     </div>
+
+                    <p id="player-count-error" class="error-message hidden">
+                        Secret Saboteur only supports 3-10 players.
+                    </p>
                 </section>
             
-                <section id="saboteur-section" class="setup-section">
+                <section id="saboteur-section" class="setup-section hidden">
                     <h3> How Many Saboteurs?</h3>
-                    <div class="option-grid">
-                        <button type="button" class="option-btn saboteur-btn" data-saboteurs="1">1</button>
-                        <button type="button" class="option-btn saboteur-btn" data-saboteurs="2">2</button> <!-- Only unlocks when there are 6-10 players-->
-                        <button type="button" class="option-btn saboteur-btn" data-saboteurs="random">Random</button>
+                    <div class="quantity-control">
+                     <div class="quantity-selector">
+                        <button type="button" id="saboteur-minus"> - </button> 
+                        <input id="saboteur-count" type="number" min="1" max="2" value="1" readonly >
+                        <button type="button" id="saboteur-plus"> + </button> 
+                    </div>
+                    <button type="button" id="randomize-players-btn" class="secondary hidden"> Randomize Saboteurs</button>
                     </div>
                 </section>
-                <section id="category-section" class="setup-section">
-                    <h3> What Word Categories?</h3>
-                    <div class="option-grid">
-                        <button type="button" class="option-btn category-btn active" data-cat="objects">Everyday Objects</button>
-                        <button type="button" class="option-btn category-btn" data-cat="food">Food & Drinks</button>
-                        <button type="button" class="option-btn category-btn" data-cat="animals">Animals</button>
-                        <button type="button" class="option-btn category-btn" data-cat="colors">Colors</button>
-                        <button type="button" class="option-btn category-btn" data-cat="shapes">Shapes</button>
-                        <button type="button" class="option-btn category-btn" data-cat="emotions">Emotions</button>
-                        <button type="button" class="option-btn category-btn" data-cat="music">Music</button>
-                        <button type="button" class="option-btn category-btn" data-cat="brands">Brands</button>
-                        <button type="button" class="option-btn category-btn" data-cat="hobbies">Hobbies & Sports</button>
-                        <button type="button" class="option-btn category-btn" data-cat="movies">Movies & TV</button>
-                        <button type="button" class="option-btn category-btn" data-cat="jobs">Occupations</button>
-                        <button type="button" class="option-btn category-btn" data-cat="nature">Weather & Nature</button>
-                        <button type="button" class="option-btn category-btn" data-cat="transport">Transportation</button>
-                        <button type="button" class="option-btn category-btn" disabled>More Coming Soon!</button>
-                    </div>
+                <section id="player-name-section" class="setup-section">
+                      <h3>Enter Player Names</h3>
+                      <div class="quantity-control">
+                     <div id="player-inputs"></div> <!-- Generated by JavaScript -->
+                     </div>
                 </section>
-                    <button class="button-style" id="continue-btn" type="button"> Continue → </button><!-- OLD <a href="index.html" class="button-style"> Continue → </a> -->
-        </section>
-
-        <section id="name-screen" class="screen hidden" data-title="Player Names">
-            <h2>Enter Player Names</h2>
-            <div id="player-inputs"></div>
-            <button type="button" id="start-game-btn" class="button-style"> Start Game! </button>
-        </section>
-
+                     <button type="button" id="start-game-btn" class="button-style" disabled>Start Game </button>
+                
+                  <!-- OLD <a href="index.html" class="button-style"> Continue → </a> -->
+             </section>
+        <!-- ===================================
+            Role Reveal
+        ==================================== -->
         <section id="role-screen" class="screen hidden" data-title="Role Reveal">
             <p class="game-instruction">Pass the device to</p> <!-- Guided interaction-->
                 <h2 id="current-player-name"></h2>
 
                 <div class="flip-wrap">
                     <div class="flip" id="flip-card">
-                        <div class="face front">
+                        <div  id="role-front" class="face front">
                             <h2>Tap to Reveal</h2>
                         </div>
-                        <div class="face back" id="role-back"></div>
+                        <div class="face back" id="role-back"></div> <!-- Generated by JavaScript -->
                     </div>
                 </div>
 
                 <button  type="button" id="next-player-btn" class="button-style">Next → </button>
         </section>
-
+        <!-- ===================================
+            Discussion
+        ==================================== -->
         <section id="discussion-screen" class="screen hidden" data-title="Discussion">
-            <h2>Discussion Time</h2>
-            <p>Each player gives an answer</p>
-
                 <div class="prompt-card"> <!-- Based off old code -->
                      <h3 id="prompt-text"></h3>
                     <div class="scale" id="scale-bar"></div>
@@ -121,38 +94,41 @@
                 <button type="button" id="reroll-prompt-btn" class="secondary small-btn">↻ Reroll Prompt</button>
                 <button type="button" id="discussion-next-btn" class="button-style"> Next → </button>
         </section>
-
+        <!-- ===================================
+            Guess Input
+        ==================================== -->
          <section id="guess-screen" class="screen hidden" data-title="Guesser Input">
-            <section class="guess-step">
+            <div class="guess-step">
                 <h2>Guesser</h2>
                 <p class="game-instruction" id="guess-prompt"></p>
-                <div id="likelihoodHint" class="likelihood-hint"></div>
+                <div id="likelihood-hint" class="likelihood-hint"></div>
                 <h3>1. Guess the Number</h3>
-                <div class="option-grid">
-                    <button type="button" class="player-btn" data-number="1">1</button>
-                    <button type="button" class="player-btn" data-number="2" >2</button>
-                    <button type="button" class="player-btn" data-number="3">3</button>
-                    <button type="button" class="player-btn" data-number="4">4</button>
-                    <button type="button" class="player-btn" data-number="5" >5</button>
-                    <button type="button" class="player-btn" data-number="6">6</button>
-                    <button type="button" class="player-btn" data-number="7" >7</button>
-                    <button type="button" class="player-btn" data-number="8" >8</button>
-                    <button type="button" class="player-btn" data-number="9" >9</button>
-                    <button type="button" class="player-btn" data-number="10" >10</button>
-                </div>
-            </section>
+                <div class="quantity-control">
+                <div class="quantity-selector">
+                        <button type="button" id="guess-minus"> - </button> 
+                        <input id="guess-number" type="number" min="1" max="10" value="5" readonly>
+                        <button type="button" id="guess-plus"> + </button> 
+                    </div>
 
-            <section class="guess-step">
+                    <p id="guesser-count-error" class="error-message hidden">
+                        Guesser must guess number from a scale of 1 - 10.
+                    </p>
+                </div>
+            </div>
+
+            <div class="guess-step">
             <div class="card">
                 <h3>2. Guess the Saboteur</h3>
-            <div id="saboteur-choices" class="option-grid"></div>
+            <div id="saboteur-choices" class="option-grid"></div> <!-- Generated by JavaScript -->
             </div>
-            </section>
+        </div>
             <button type="button" id="submit-guess-btn" disabled>
                 Submit Guess
             </button>
         </section>
-
+        <!-- ===================================
+            Results Screen
+        ==================================== -->
         <section id="results-screen" class="screen hidden" data-title="Results">
             <h2>Results</h2>
             <div class="card">
@@ -163,7 +139,7 @@
                 </div>
 
             <div class="card sab-card">
-                Saboteur was <b id="saboteur-name"></b>
+                Saboteur was <strong id="saboteur-name"></strong>
 
             <button type="button" id="saboteur-info-btn" class="info-btn">?</button> <!-- Will reveal popup of win conditions - might remove becuase it is in the game info-->
             </div>
@@ -173,11 +149,24 @@
         </section>
         
         </main>
-        <!--
-    JavaScript controls which .screen is visible.
-
-    Only one screen should be visible at any time.
-    -->
+        <!-- JavaScript controls which .screen is visible. Only one screen should be visible at any time.-->
+         <div id="saboteur-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+            <div class="modal-card">
+                <header class="modal-header">
+                    <h2> Match Analytics</h2>
+                    <button type="button" id="close-modal-btn" class="modal-close-x">x</button>
+                </header>
+                <section class="modal-content">
+                    <h3> Teammates Win: </h3>
+                    <p>The Guesser successfully uncovers the identity of <i>all hidden Saboteurs</i> OR types in the <i>exact secret scale number</i>.</p>
+                    <h3> Saboteurs Win: </h3>
+                    <p>>The Saboteurs successfully stay hidden <i>AND</i> trick the Guesser into typing the wrong scale number parameter.</p>
+                </section>
+                <footer class="modal-footer">
+                    <button type="button" id="modal-ack-btn" class="button-style"> Got it!</button>
+                </footer>
+            </div>
+         </div>
     </body>
     
 </html>
