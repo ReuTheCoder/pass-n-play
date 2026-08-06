@@ -570,16 +570,16 @@ function showGuessScreen() {
 
     document.getElementById("guesser-count-error").classList.add("hidden");
 
-    guessPrompt.textContent = `Review the discussion details for:
-    "${game.prompt.title}".`;
-    
-    likelihoodHint.innerHTML = `
+    guessPrompt.innerHTML = `
+        <p style="margin-bottom: 12px;">Review the discussion details for:<br><strong>"${game.prompt.title}"</strong></p>
         <div class="organized-hint-box">
-            <span class="hint-pill low"> [1]: ${game.prompt.low}</span>
+            <span class="hint-pill low">[1]: ${game.prompt.low}</span>
             <span class="hint-pill high">[10]: ${game.prompt.high}</span>
         </div>
     `;
 
+    likelihoodHint.innerHTML = "";
+    
     buildSaboteurChoices();
 
     updateGuessValidation();
