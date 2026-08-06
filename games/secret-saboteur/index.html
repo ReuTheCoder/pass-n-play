@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="../../css/game.css">
         <script src="script.js" defer></script>
     </head>
-    <body  style="--accent-primary: #00b4d8; --accent-light: #e6f9ff;">
+    <body data-game="saboteur">
         <a href="info.html" class="back-home-link"> ← Game Info </a>
         <header>
            <h1> 🔎 Secret Saboteur </h1>
@@ -41,13 +41,15 @@
             
                 <section id="saboteur-section" class="setup-section hidden">
                     <h3> How Many Saboteurs?</h3>
-                    <div class="quantity-control">
-                     <div class="quantity-selector">
-                        <button type="button" id="saboteur-minus"> - </button> 
-                        <input id="saboteur-count" type="number" min="1" max="2" value="1" readonly >
-                        <button type="button" id="saboteur-plus"> + </button> 
-                    </div>
-                    <button type="button" id="randomize-players-btn" class="secondary hidden"> Randomize Saboteurs</button>
+                    <div class="saboteur-controls-container">
+                        <div id="saboteur-selector-wrap" class="selector-wrap">
+                            <div class="quantity-selector">
+                                <button type="button" id="saboteur-minus"> - </button> 
+                                <input id="saboteur-count" type="number" min="1" max="2" value="1" readonly >
+                                <button type="button" id="saboteur-plus"> + </button> 
+                            </div>
+                        </div>
+                    <button type="button" id="randomize-players-btn" class="stepper-style-btn"> Randomize Saboteurs</button>
                     </div>
                 </section>
                 <section id="player-name-section" class="setup-section">
@@ -99,7 +101,6 @@
         ==================================== -->
          <section id="guess-screen" class="screen hidden" data-title="Guesser Input">
             <div class="guess-step">
-                <h2>Guesser</h2>
                 <p class="game-instruction" id="guess-prompt"></p>
                 <div id="likelihood-hint" class="likelihood-hint"></div>
                 <h3>1. Guess the Number</h3>
@@ -130,7 +131,6 @@
             Results Screen
         ==================================== -->
         <section id="results-screen" class="screen hidden" data-title="Results">
-            <h2>Results</h2>
             <div class="card">
                 <h2 id="result-message" aria-live="polite"></h2>
                 <p id="result-text"></p>
@@ -143,24 +143,21 @@
 
             <button type="button" id="saboteur-info-btn" class="info-btn">?</button> <!-- Will reveal popup of win conditions - might remove becuase it is in the game info-->
             </div>
-
+            <div class="results-buttons-bundle">
             <button type="button" id="play-again-btn" class="button-style">↻ Play Again</button>
             <button type="button" id="new-game-btn"class="secondary">New Game</button>
+            </div>
         </section>
         
         </main>
         <!-- JavaScript controls which .screen is visible. Only one screen should be visible at any time.-->
          <div id="saboteur-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
             <div class="modal-card">
-                <header class="modal-header">
-                    <h2> Match Analytics</h2>
-                    <button type="button" id="close-modal-btn" class="modal-close-x">x</button>
-                </header>
                 <section class="modal-content">
                     <h3> Teammates Win: </h3>
                     <p>The Guesser successfully uncovers the identity of <i>all hidden Saboteurs</i> OR types in the <i>exact secret scale number</i>.</p>
                     <h3> Saboteurs Win: </h3>
-                    <p>>The Saboteurs successfully stay hidden <i>AND</i> trick the Guesser into typing the wrong scale number parameter.</p>
+                    <p> The Saboteurs successfully stay hidden <i>AND</i> trick the Guesser into typing the wrong scale number parameter.</p>
                 </section>
                 <footer class="modal-footer">
                     <button type="button" id="modal-ack-btn" class="button-style"> Got it!</button>
