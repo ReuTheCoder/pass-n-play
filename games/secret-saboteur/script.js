@@ -40,7 +40,6 @@ const discussionNextBtn = document.getElementById("discussion-next-btn");
 
 //Guess Screen
 const guessPrompt = document.getElementById("guess-prompt");
-const likelihoodHint = document.getElementById("likelihood-hint");
 const saboteurChoices = document.getElementById("saboteur-choices");
 const submitGuessBtn = document.getElementById("submit-guess-btn");
 
@@ -291,6 +290,14 @@ function generatePlayerInputs() {
     playerInputs.innerHTML = "";
 
     for (let i = 0; i < game.playerCount; i++) {
+        const wrap = document.createElement("div");
+        wrap.className = "player-input-wrap";
+        wrap.innerHTML = `
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill player-input-icon" viewBox="0 0 16 16">
+            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+        </svg>
+        `;
+
         const input = document.createElement("input");
         input.type = "text";
         input.id = `player-name-${i}`;
@@ -300,8 +307,8 @@ function generatePlayerInputs() {
         if(savedNames[i]) { //keeps value saved in settings change after input
             input.value = savedNames[i];
         }
-
-        playerInputs.appendChild(input);
+        wrap.appendChild(input);
+        playerInputs.appendChild(wrap);
     }
 }
 
@@ -312,11 +319,13 @@ function updateSaboteurControls() {
     } else {
         saboteurSection.classList.add("hidden");
     }
+    const saboteurHint = document.getElementById("saboteur-hint");
     const selectorWrap = document.getElementById("saboteur-selector-wrap");
 
     if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers) {
         saboteurPlusBtn.disabled = false;
         randomizePlayersBtn.classList.remove("hidden");
+        saboteurHint.classList.add("hidden");
 
         if(randomizePlayersBtn.classList.contains("active-random")) {
             selectorWrap.classList.add("hidden");
@@ -331,6 +340,7 @@ function updateSaboteurControls() {
         randomizePlayersBtn.classList.add("hidden");
         randomizePlayersBtn.classList.remove("active-random");
         selectorWrap.classList.remove("hidden");
+        saboteurHint.classList.remove("hidden");
     }
 }
 
@@ -485,17 +495,20 @@ function showCurrentPlayer() {
     if (role == "Guesser") {
         roleBack.innerHTML =  `
             <h2 style="color: #ffb703;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are the Guesser!</h2>
-            <p style="margin-top:12px;"> You do not get to know the secret number. Listen closely to everyone's clues to uncover the truth!</p>
+            <p class="role-detail"> You do not get to know the secret number. </p>
+            <p class="role-detail"> Listen closely to everyone's clues to uncover the truth! </p>
         `;
     } else if (role == "Saboteur") {
         roleBack.innerHTML =  `
-            <h2 style="color: #e60012;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are a Saboteur!</h2>
-            <p style="margin-top:12px;"> Blend in with the crew and mislead the group! <br> The number target is: <strong>${game.secretNumber}</strong></p>
+            <h2 style="color: #ff4911;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are a Saboteur!</h2>
+            <p class="role-detail"> Blend in with the crew and mislead the group! </p>
+            <p class="role-detail"> The number target is: <strong>${game.secretNumber}</strong></p>
         `;
     } else {
         roleBack.innerHTML = `
             <h2> You are a Teammate!</h2>
-            <p style="margin-top:12px;"> Help the Guesser know the secret number! <br> The number target is: <strong>${game.secretNumber}</strong></p>
+            <p class="role-detail"> Help the Guesser know the secret number! </p>
+            <p class="role-detail"> The number target is: <strong>${game.secretNumber}</strong></p>
         `;
     }
 }
@@ -503,6 +516,9 @@ function showCurrentPlayer() {
 function handleCardFlip() {
     flipCard.classList.toggle("flipped");
     cardRevealed = flipCard.classList.contains("flipped");
+
+    nextPlayerBtn.disabled = true;
+    setTimeout(() => {nextPlayerBtn.disabled = false; }, 400);
 }
 
 function nextPlayer() {
@@ -532,13 +548,19 @@ function initializeDiscussionPhase() {
     const randomLeader = potentialLeaders[Math.floor(Math.random() * potentialLeaders.length)];
 
     // discussion promt message frame banner
-    const discussionInstruction = document.querySelector("#discussion-screen .game-instruction") || document.createElement("p");
-    discussionInstruction.className = "game-instruction";
+    const discussionInstruction = document.querySelector("#discussion-screen .discussion-leader-line") || document.createElement("p");
+    discussionInstruction.className = "discussion-leader-line";
     discussionInstruction.style.marginBottom = "16px";
-    discussionInstruction.innerHTML = `🗣️ <strong>${randomLeader}</strong> must start the discussion phase!`;
+    discussionInstruction.innerHTML = `
+    <span class="discussion-leader-name">
+        <svg xmlns="http://www.w3.org" width="18" height="18" fill="currentColor" class="bi bi-megaphone-fill" viewBox="0 0 16 16" style="margin-right: 8px; color: var(--accent-primary); transform: scaleX(-1);"><path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0zm-1 .724c-2.067.95-4.539 1.481-7 1.656v6.237a25 25 0 0 1 1.088.085c2.053.204 4.038.668 5.912 1.56zm-8 7.841V4.934c-.68.027-1.399.043-2.008.053A2.02 2.02 0 0 0 0 7v2c0 1.106.896 1.996 1.994 2.009l.496.008a64 64 0 0 1 1.51.048m1.39 1.081q.428.032.85.078l.253 1.69a1 1 0 0 1-.983 1.187h-.548a1 1 0 0 1-.916-.599l-1.314-2.48a66 66 0 0 1 1.692.064q.491.026.966.06"/></svg>
+        <strong>${randomLeader}</strong> 
+    </span>
+    <span class="discussion-leader-text">must start the discussion phase!</span>
+    `;
 
     const discussionScreen = document.getElementById("discussion-screen");
-    if (!document.querySelector("#discussion-screen .game-instruction")) {
+    if (!document.querySelector("#discussion-screen .discussion-leader-line")) {
         discussionScreen.insertBefore(discussionInstruction, discussionScreen.firstChild);
     }
 
@@ -554,8 +576,23 @@ function rerollPrompt() {
     game.prompt = chosenPrompt;
 
     promptText.textContent = chosenPrompt.title;
-    lowLabel.textContent = `1 - ${chosenPrompt.low}`;
-    highLabel.textContent = `10 - ${chosenPrompt.high}`;
+    lowLabel.innerHTML = `<span class="scale-num">1</span><span class="scale-dash"> - </span><span class="scale-word">${chosenPrompt.low}</span>`;
+    highLabel.innerHTML = `<span class="scale-num">10</span><span class="scale-dash"> - </span><span class="scale-word">${chosenPrompt.high}</span>`;
+    buildNumberLine();
+}
+
+function buildNumberLine() {
+    const numberLine = document.getElementById("number-line");
+    numberLine.innerHTML = "";
+    for (let i = 1; i <= 10; i++) {
+        const cell = document.createElement("div");
+        cell.className = "number-cell";
+        if (i === 10) cell.classList.add("number-cell-double");
+        cell.textContent = i;
+        const intensity = 0.25 + (i/10) * 0.40;
+        cell.style.backgroundColor = ` color-mix(in srgb, var(--accent-primary) ${intensity * 100}%, white)`;
+        numberLine.appendChild(cell);
+    }
 }
 
 /* ==========================
@@ -571,14 +608,14 @@ function showGuessScreen() {
     document.getElementById("guesser-count-error").classList.add("hidden");
 
     guessPrompt.innerHTML = `
-        <p style="margin-bottom: 12px;">Review the discussion details for:<br><strong>"${game.prompt.title}"</strong></p>
-        <div class="organized-hint-box">
-            <span class="hint-pill low">[1]: ${game.prompt.low}</span>
-            <span class="hint-pill high">[10]: ${game.prompt.high}</span>
+        <p class="guess-review-text">Review the discussion details for:
+        <p class="guess-review-text"><strong>"${game.prompt.title}"</strong></p>
+        <div class="guess-scale-bar"></div>
+        <div class="guess-scale-labels">
+            <span>1: ${game.prompt.low}</span>
+            <span>10: ${game.prompt.high}</span>
         </div>
     `;
-
-    likelihoodHint.innerHTML = "";
     
     buildSaboteurChoices();
 
@@ -693,14 +730,23 @@ function calculateWinner() {
     guessNum.textContent = game.guessedNumber;
 
     if (correctlyGuessedNumber || correctlyIdentifiedSaboteurs) {
-        resultMessage.textContent = "Saboteurs Stopped! Teammates Win!";
+        resultMessage.innerHTML = `Saboteurs Stopped!<br>Teammates Win!`;
         resultMessage.style.color = "var(--accent-primary)";
         resultText.textContent = correctlyGuessedNumber
             ? "The Guesser cracked the code and found the exact secret number!" 
             : "The Guesser successfully exposed the secret Saboteur(s)!";
+
+        if (typeof confetti === "function") {
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: {y: 0.6},
+                colors: ["#00b4d8", "#2b2b2b", "#ffffff"]
+            });
+        }
     } else {
         resultMessage.textContent = "Saboteurs Win!";
-        resultMessage.style.color = "#e60012";
+        resultMessage.style.color = "#ff4911";
         resultText.textContent = "The Saboteurs successfully threw everyone off the scent and remained hidden!";
     }
 }

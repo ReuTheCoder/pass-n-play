@@ -17,8 +17,9 @@ const saboteurSection = document.getElementById("saboteur-section");
 const saboteurInput = document.getElementById("saboteur-count");
 const saboteurMinusBtn = document.getElementById("saboteur-minus");
 const saboteurPlusBtn = document.getElementById("saboteur-plus");
+const categoryChoicesGrid = document.getElementById("category-choices-grid");
 
-const randomizePlayersBtn = document.getElementById("randomize-players-btn");
+const randomizeImpostersBtn = document.getElementById("randomize-players-btn");
 
 const playerInputs = document.getElementById("player-inputs");
 
@@ -31,16 +32,9 @@ const roleBack = document.getElementById("role-back");
 const nextPlayerBtn = document.getElementById("next-player-btn");
 
 //Discussion Screen
-const promptText = document.getElementById("prompt-text");
-const lowLabel = document.getElementById("low-label");
-const highLabel = document.getElementById("high-label");
-
-const rerollPromptBtn = document.getElementById("reroll-prompt-btn");
 const discussionNextBtn = document.getElementById("discussion-next-btn");
 
 //Guess Screen
-const guessPrompt = document.getElementById("guess-prompt");
-const likelihoodHint = document.getElementById("likelihood-hint");
 const saboteurChoices = document.getElementById("saboteur-choices");
 const submitGuessBtn = document.getElementById("submit-guess-btn");
 
@@ -48,17 +42,13 @@ const submitGuessBtn = document.getElementById("submit-guess-btn");
 const resultMessage = document.getElementById("result-message");
 const resultText = document.getElementById("result-text");
 const realNum = document.getElementById("real-num");
-const guessNum = document.getElementById("guess-num");
 const saboteurName = document.getElementById("saboteur-name");
 
 const playAgainBtn = document.getElementById("play-again-btn");
 const newGameBtn = document.getElementById("new-game-btn");
 
-//Popup
-const saboteurModal = document.getElementById("saboteur-modal");
-const saboteurInfoBtn = document.getElementById("saboteur-info-btn");
-const closeModalBtn = document.getElementById("close-modal-btn");
-const modalAckBtn = document.getElementById("modal-ack-btn");
+const voteError = document.getElementById("guesser-count-error");
+
 
 /* ==========================
     Game State
@@ -66,22 +56,21 @@ const modalAckBtn = document.getElementById("modal-ack-btn");
 const game = {
     playerCount: 4,
     saboteurCount: 1,
+    selectedCategories: ["objects"],
     players: [],
     roles: [],
-    prompt: null,
-    secretNumber: null,
+    secretWord: null,
     currentPlayer: 0,
-    guessedNumber: null,
-    guessedSaboteurs: []
+    guessedImposters: []
 };
 
 const SETTINGS = { //constraints, basically
     minPlayers: 3,
     maxPlayers: 10,
-    twoSaboteurMinPlayers: 6, //at what amount of players does 2 sabs unlock
-    minGuess: 1,
-    maxGuess: 10
+    twoSaboteurMinPlayers: 6 
 };
+
+let cardRevealed = false;
 
 const wordBank = {
   objects: ["Chair","Table","Phone","Backpack","Mirror","Clock","Lamp","Notebook","Pen","Wallet","Keys","Bottle"],
@@ -96,11 +85,8 @@ const wordBank = {
   movies: ["Inception","Titanic","Avatar","Frozen","Toy Story","The Matrix","Jurassic Park","Star Wars"],
   jobs: ["Doctor","Nurse","Teacher","Professor","Student","Engineer","Programmer","Developer"],
   nature: ["Rain","Snow","Hail","Sleet","Wind","Breeze","Storm","Thunder","Lightning","Fog"],
-  transport: ["Car","Truck","Van","Bus","Taxi","Uber","Train","Subway","Metro","Tram"],
+  transport: ["Car","Truck","Van","Bus","Taxi","Uber","Train","Subway","Metro","Airplane"],
 };
-
-
-let cardRevealed = false;
 
 /* ==========================
     Initalization
@@ -110,57 +96,9 @@ initialize();
 
 function initialize() {
     handleSetupUpdates();
+    setupCategoryEventListeners();
 }
 
-/* ==========================
-    Event Listeners
-========================== */
-
-playersPlusBtn.addEventListener("click", increasePlayers); //controls the buttons
-playersMinusBtn.addEventListener("click", decreasePlayers);
-saboteurPlusBtn.addEventListener("click", increaseSaboteurs); 
-saboteurMinusBtn.addEventListener("click", decreaseSaboteurs);
-playerCountInput.addEventListener("input", handleSetupUpdates); //controls the input field
-startGameBtn.addEventListener("click", startGame);
-
-playAgainBtn.addEventListener("click", playAgain);
-nextPlayerBtn.addEventListener("click", nextPlayer);
-flipCard.addEventListener("click", handleCardFlip);
-
-rerollPromptBtn.addEventListener("click", rerollPrompt);
-discussionNextBtn.addEventListener("click", showGuessScreen);
-
-submitGuessBtn.addEventListener("click", submitGuess);
-document.getElementById("guess-plus").addEventListener("click", () => adjustGuessNumber(1));
-document.getElementById("guess-minus").addEventListener("click", () => adjustGuessNumber(-1));
-
-saboteurInfoBtn.addEventListener("click", openModal);
-modalAckBtn.addEventListener("click", closeModal);
-newGameBtn.addEventListener("click", resetGame);
-
-saboteurModal.addEventListener("click", function(event) {
-    if (event.target === saboteurModal) {
-        closeModal();
-    }
-});
-
-randomizePlayersBtn.addEventListener("click", () => {
-    randomizePlayersBtn.classList.toggle("active-random");
-    const selectorWrap = document.getElementById("saboteur-selector-wrap");
-
-    if (randomizePlayersBtn.classList.contains("active-random")) {
-        selectorWrap.classList.add("hidden");
-        game.saboteurCount = "random";
-    } else {
-        selectorWrap.classList.remove("hidden");
-        game.saboteurCount = parseInt(saboteurInput.value, 10);
-    }
-    validateSetup();
-});
-
-/* ==========================
-    Screen Function
-========================== */
 function showScreen(screenId) {
     screens.forEach(screen => {
         screen.classList.add("hidden");
@@ -171,7 +109,6 @@ function showScreen(screenId) {
 
     screenTitle.textContent = activeScreen.dataset.title;
 }
-
 
 /* ==========================
     Setup
@@ -225,9 +162,9 @@ function updateSaboteurControls() {
 
     if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers) {
         saboteurPlusBtn.disabled = false;
-        randomizePlayersBtn.classList.remove("hidden");
+        randomizeImpostersBtn.classList.remove("hidden");
 
-        if(randomizePlayersBtn.classList.contains("active-random")) {
+        if(randomizeImpostersBtn.classList.contains("active-random")) {
             selectorWrap.classList.add("hidden");
         } else {
             selectorWrap.classList.remove("hidden");
@@ -237,8 +174,8 @@ function updateSaboteurControls() {
         game.saboteurCount = 1;
         saboteurPlusBtn.disabled = true;
 
-        randomizePlayersBtn.classList.add("hidden");
-        randomizePlayersBtn.classList.remove("active-random");
+        randomizeImpostersBtn.classList.add("hidden");
+        randomizeImpostersBtn.classList.remove("active-random");
         selectorWrap.classList.remove("hidden");
     }
 }
@@ -267,24 +204,41 @@ function validateSetup() { //all players must have name before starting
     }
 }
 
-function startGame() {
-    game.players = [];
-    const nameInputs = playerInputs.querySelectorAll("input");
-    nameInputs.forEach(input => {
-        game.players.push(input.value.trim());
+function setupCategoryEventListeners() {
+    const categoryButtons = categoryChoicesGrid.querySelectorAll(".category-btn:not([disabled])");
+    categoryButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const cat = btn.dataset.cat;
+            const isActive = btn.classList.contains("active");
+
+            if(isActive) {
+                if (game.selectedCategories.length === 1) return;
+                btn.classList.remove("active");
+                game.selectedCategories = game.selectedCategories.filter(c => c !== cat);
+            } else {
+                btn.classList.add("active");
+                game.selectedCategories.push(cat);
+            }
+        });
     });
-
-    assignRoles();
-    assignSecretNumber();
-
-    game.currentPlayer = 0;
-    cardRevealed = false;
-
-    showCurrentPlayer();
-    showScreen("role-screen");
-
 }
 
+function handleSetupUpdates() {
+    updatePlayerCount();
+    generatePlayerInputs();
+    updateSaboteurControls();
+    validateSetup();
+
+    attachNameInputListeners();
+}
+
+function attachNameInputListeners() {
+    const inputs =playerInputs.querySelectorAll("input");
+    inputs.forEach(input => {
+        input.removeEventListener("input", validateSetup);
+        input.addEventListener("input", validateSetup);
+    });
+} //should add live validation
 
 //Helpers
 function increasePlayers() {
@@ -319,92 +273,75 @@ function decreaseSaboteurs() {
         validateSetup(); //refresh form status
     }
 }
-function handleSetupUpdates() {
-    updatePlayerCount();
-    generatePlayerInputs();
-    updateSaboteurControls();
-    validateSetup();
-
-    attachNameInputListeners();
-}
-
-function attachNameInputListeners() {
-    const inputs =playerInputs.querySelectorAll("input");
-    inputs.forEach(input => {
-        input.removeEventListener("input", validateSetup);
-        input.addEventListener("input", validateSetup);
-    });
-} //should add live validation
-
 
 /* ==========================
     Role Generation
 ========================== */
+function startGame() {
+    game.players = [];
+    const nameInputs = playerInputs.querySelectorAll("input");
+    nameInputs.forEach(input => {
+        game.players.push(input.value.trim());
+    });
+
+    assignRoles();
+    assignSecretWord();
+
+    game.currentPlayer = 0;
+    cardRevealed = false;
+
+    showCurrentPlayer();
+    showScreen("role-screen");
+
+}
+
 function assignRoles() {
     game.roles = [];
+    let pool = [];
+    for (let i = 0; i < game.playerCount; i++) {pool.push(i); }
 
-    let allIndices = [];
-    for (let i = 1; i < game.playerCount; i++) {
-        allIndices.push(i);
+    let activeImposterTarget = game.saboteurCount;
+    if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers && randomizeImpostersBtn.classList.contains("active-random")) {
+        activeImposterTarget = Math.floor(Math.random()*2) + 1;
+        saboteurInput.value = activeImposterTarget;
     }
 
-    const guesserRandomIndex = Math.floor(Math.random() * allIndices.length); // one player is assigned guesser
-    const guesserPlayerIndex = allIndices.splice(guesserRandomIndex, 1)[0];
-    game.roles[guesserPlayerIndex] = "Guesser";
-
-    let activeSaboteurTarget = game.saboteurCount; //game logic, 6+ players mean 2 or random sabs
-
-    if (game.playerCount >= SETTINGS.twoSaboteurMinPlayers && randomizePlayersBtn.classList.contains("active-random")) {
-        activeSaboteurTarget = Math.floor(Math.random() * 2) + 1;
-        saboteurInput.value = activeSaboteurTarget;
+    let chosenImposters = [];
+    while (chosenImposters.length < activeImposterTarget && pool.length > 0) {
+        const randomIndex = Math.floor(Math.random()* pool.length);
+        const playerIndex = pool.splice(randomIndex, 1)[0];
+        chosenImposters.push(playerIndex);
     }
 
-    let selectedSaboteurs = [];
-    while (selectedSaboteurs.length < activeSaboteurTarget && allIndices.length > 0) {
-        const sabRandomIndex = Math.floor(Math.random() * allIndices.length);
-        const sabPlayerIndex = allIndices.splice(sabRandomIndex, 1)[0];
-        selectedSaboteurs.push(sabPlayerIndex);
+    for (let i = 0; i < game.playerCount; i++) {
+        game.roles[i] = chosenImposters.includes(i) ? "Imposter" : "Teammate";
     }
-
-    allIndices.forEach(playerIndex => {
-        game.roles[playerIndex] = "Teammate";
-    });
-
-    selectedSaboteurs.forEach(playerIndex => {
-        game.roles[playerIndex] = "Saboteur";
-    });
 }
 
-function assignSecretNumber() {
-    game.secretNumber = Math.floor(Math.random() * (SETTINGS.maxGuess - SETTINGS.minGuess + 1)) + SETTINGS.minGuess;
+function assignSecretWord() {
+    const combinedPool = game.selectedCategories.flatMap(cat => wordBank[cat]);
+    const randomIndex = Math.floor(Math.random()*combinedPool.length);
+    game.secretWord = combinedPool[randomIndex];
 }
-
 
 /* ==========================
     Game Generation
 ========================== */
 function showCurrentPlayer() {
-    const name = game.players[game.currentPlayer];
-    currentPlayerName.textContent = name;
-
+    currentPlayerName.textContent = game.players[game.currentPlayer];
     flipCard.classList.remove("flipped");
     cardRevealed = false;
 
     const role = game.roles[game.currentPlayer];
-    if (role == "Guesser") {
+    if (role == "Imposter") {
         roleBack.innerHTML =  `
-            <h2 style="color: #ffb703;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are the Guesser!</h2>
-            <p style="margin-top:12px;"> You do not get to know the secret number. Listen closely to everyone's clues to uncover the truth!</p>
-        `;
-    } else if (role == "Saboteur") {
-        roleBack.innerHTML =  `
-            <h2 style="color: #e60012;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are a Saboteur!</h2>
-            <p style="margin-top:12px;"> Blend in with the crew and mislead the group! <br> The number target is: <strong>${game.secretNumber}</strong></p>
+            <h2 style="color: #e60012;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are the Imposter!</h2>
+            <p style="margin-top:14px;"> You do not know the word! <br> Listen to clues and fake it till you make it!</p>
         `;
     } else {
         roleBack.innerHTML = `
-            <h2> You are a Teammate!</h2>
-            <p style="margin-top:12px;"> Help the Guesser know the secret number! <br> The number target is: <strong>${game.secretNumber}</strong></p>
+            <h2 style="color: var(--accent-primary); -webkit-text-stroke: 1.5px #2b2b2b;"> You are a Civilian!</h2>
+            <p style="margin-top:14px; font-weight:600;"> The secret word is: <br><strong style="font-size:1.6rem; color: var(--accent-primary);">${game.secretWord}</strong></p>
         `;
     }
 }
@@ -412,6 +349,9 @@ function showCurrentPlayer() {
 function handleCardFlip() {
     flipCard.classList.toggle("flipped");
     cardRevealed = flipCard.classList.contains("flipped");
+
+    nextPlayerBtn.disabled=true;
+    setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
 }
 
 function nextPlayer() {
@@ -429,150 +369,60 @@ function nextPlayer() {
 ========================== */
 
 function initializeDiscussionPhase() {
-    rerollPrompt();
-
-    let potentialLeaders = [];
-    game.roles.forEach((role, index) => {
-        if (role !== "Guesser") {
-            potentialLeaders.push(game.players[index]);
-        }
-    });
-
-    const randomLeader = potentialLeaders[Math.floor(Math.random() * potentialLeaders.length)];
-
-    // discussion promt message frame banner
-    const discussionInstruction = document.querySelector("#discussion-screen .game-instruction") || document.createElement("p");
-    discussionInstruction.className = "game-instruction";
-    discussionInstruction.style.marginBottom = "16px";
-    discussionInstruction.innerHTML = `🗣️ <strong>${randomLeader}</strong> must start the discussion phase!`;
-
-    const discussionScreen = document.getElementById("discussion-screen");
-    if (!document.querySelector("#discussion-screen .game-instruction")) {
-        discussionScreen.insertBefore(discussionInstruction, discussionScreen.firstChild);
-    }
+    
+    const randomLeader = game.players[Math.floor(Math.random()*game.playerCount)];
+    const instructionBanner = document.querySelector("#discussion-screen .discussion-leader-line");
+    instructionBanner.innerHTML = `<svg xmlns="http://w3.org" width="18" height="18" fill="currentColor" class="bi bi-megaphone-fill" viewBox="0 0 16 16" style="color: var(--accent-primary); transform: scaleX(-1);"><path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0zm-1 .724c-2.067.95-4.539 1.481-7 1.656v6.237a25 25 0 0 1 1.088.085c2.053.204 4.038.668 5.912 1.56zm-8 7.841V4.934c-.68.027-1.399.043-2.008.053A2.02 2.02 0 0 0 0 7v2c0 1.106.896 1.996 1.994 2.009l.496.008a64 64 0 0 1 1.51.048m1.39 1.081q.428.032.85.078l.253 1.69a1 1 0 0 1-.983 1.187h-.548a1 1 0 0 1-.916-.599l-1.314-2.48a66 66 0 0 1 1.692.064q.491.026.966.06"/></svg>
+    <strong>${randomLeader}</strong> must state their clue first!`;
 
     showScreen("discussion-screen");
-}
-
-function rerollPrompt() {
-    if (prompts.length === 0) return;
-
-    const randomIndex = Math.floor(Math.random()* prompts.length);
-    const chosenPrompt = prompts[randomIndex];
-
-    game.prompt = chosenPrompt;
-
-    promptText.textContent = chosenPrompt.title;
-    lowLabel.textContent = `1 - ${chosenPrompt.low}`;
-    highLabel.textContent = `10 - ${chosenPrompt.high}`;
 }
 
 /* ==========================
     Guessing
 ========================== */
 function showGuessScreen() {
-    game.guessedNumber = 5;
-    game.guessedSaboteurs = [];
 
-    const guessInput = document.getElementById("guess-number");
-    guessInput.value = "5";
-
-    document.getElementById("guesser-count-error").classList.add("hidden");
-
-    guessPrompt.innerHTML = `
-        <p style="margin-bottom: 12px;">Review the discussion details for:<br><strong>"${game.prompt.title}"</strong></p>
-        <div class="organized-hint-box">
-            <span class="hint-pill low">[1]: ${game.prompt.low}</span>
-            <span class="hint-pill high">[10]: ${game.prompt.high}</span>
-        </div>
-    `;
-
-    likelihoodHint.innerHTML = "";
+    game.guessedImposters = [];
+    submitGuessBtn.disabled = true;
+    voteError.classList.add("hidden");
     
-    buildSaboteurChoices();
-
-    updateGuessValidation();
-
+    buildSuspectChoices();
     showScreen("guess-screen");
 }
 
-function buildSaboteurChoices() {
+function buildSuspectChoices() {
     saboteurChoices.innerHTML = "";
 
     game.players.forEach((playerName, index) => {
-        if (game.roles[index] === "Guesser") return;
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "player-btn";
         btn.textContent = playerName;
-        btn.dataset.playerIndex = index;
 
-        btn.addEventListener("click", function() {
-            handleSaboteurSelection(btn, index);
+        btn.addEventListener("click", () => {
+            const alreadySelected = game.guessedImposters.includes(index);
+            if (alreadySelected) {
+                game.guessedImposters = game.guessedImposters.filter(playerIndex => playerIndex !== index);
+                btn.classList.remove("active");
+            } else if (game.guessedImposters.length < game.saboteurCount) {
+                game.guessedImposters.push(index);
+                btn.classList.add("active");
+            }
+            updateVoteValidation();
         });
         saboteurChoices.appendChild(btn);
     });
 }
 
-function handleSaboteurSelection(buttonElement, playerIndex) { // If they tap an already highlighted player button, remove them from selection
-    const maxAllowedSelection = game.saboteurCount;
-    const arrayIndexPosition = game.guessedSaboteurs.indexOf(playerIndex);
-    
-    if(arrayIndexPosition > -1) {
-        game.guessedSaboteurs.splice(arrayIndexPosition, 1);
-        buttonElement.classList.remove("active");
-    } else {
-        if (game.guessedSaboteurs.length < maxAllowedSelection) {
-            game.guessedSaboteurs.push(playerIndex);
-            buttonElement.classList.add("active");
-        } else if ( maxAllowedSelection === 1) {
-            const previouslySelectedBtn = saboteurChoices.querySelector(".player-btn.active");
-            if (previouslySelectedBtn) previouslySelectedBtn.classList.remove("active");
+function updateVoteValidation() {
+    const count = game.guessedImposters.length;
+    const hasCorrectCount = count === game.saboteurCount;
 
-            game.guessedSaboteurs = [playerIndex];
-            buttonElement.classList.add("active");
-        }
-    }
-    updateGuessValidation();
+    voteError.classList.toggle("hidden", count === 0 || hasCorrectCount);
+    submitGuessBtn.disabled = !hasCorrectCount
 }
 
-function adjustGuessNumber(direction) {
-    const guessInput = document.getElementById("guess-number");
-    let currentVal = parseInt(guessInput.value, 10);
-
-    if(isNaN(currentVal)) { // for if the tracker field currently stores an empty placeholder string character 
-        currentVal = 5;
-    } else {
-        currentVal = currentVal + direction;
-    }
-
-    if(currentVal < SETTINGS.minGuess) currentVal = SETTINGS.minGuess;
-    if(currentVal > SETTINGS.maxGuess) currentVal = SETTINGS.maxGuess;
-
-    guessInput.value = currentVal;
-    game.guessedNumber = currentVal;
-
-    updateGuessValidation();
-}
-
-function updateGuessValidation() {
-    const errorBlock = document.getElementById("guesser-count-error");
-
-    const hasGuessedNumber = (game.guessedNumber !== null && !isNaN(game.guessedNumber));
-    const hasGuessedCorrectSaboteurCount = (game.guessedSaboteurs.length === game.saboteurCount);
-
-    if(game.guessedNumber === null) {
-        errorBlock.classList.remove("hidden");
-    } else {
-        errorBlock.classList.add("hidden");
-    }
-
-    if(hasGuessedNumber && hasGuessedCorrectSaboteurCount) {
-        submitGuessBtn.disabled = false;
-    } else {
-        submitGuessBtn.disabled = true;
-    }
-}
 function submitGuess() {
     calculateWinner();
 
@@ -583,40 +433,34 @@ function submitGuess() {
     Results
 ========================== */
 function calculateWinner() {
-    const actualSaboteurIndices = [];
+    const actualImposterIndices = [];
     game.roles.forEach((role,index) => {
-        if (role === "Saboteur") {
-            actualSaboteurIndices.push(index);
+        if (role === "Imposter") {
+            actualImposterIndices.push(index);
         }
     });
 
-    const correctlyIdentifiedSaboteurs = game.guessedSaboteurs.every(index =>
-        actualSaboteurIndices.includes(index)
-    );
-    const correctlyGuessedNumber = (game.guessedNumber === game.secretNumber);
 
-    const saboteurNamesArray = actualSaboteurIndices.map(index => game.players[index]);
-    saboteurName.textContent = saboteurNamesArray.join(", ");
+    const caughtImposters = game.guessedImposters.length === actualImposterIndices.length && game.guessedImposters.every(index => actualImposterIndices.includes(index));
 
-    realNum.textContent = game.secretNumber;
-    guessNum.textContent = game.guessedNumber;
+    const imposterNames = actualImposterIndices.map(index => game.players[index]);
+    saboteurName.textContent = imposterNames.join(",");
+    realNum.textContent = game.secretWord;
 
-    if (correctlyGuessedNumber || correctlyIdentifiedSaboteurs) {
-        resultMessage.textContent = "Saboteurs Stopped! Teammates Win!";
+    if (caughtImposters) {
+        resultMessage.innerHTML = "Imposters Stopped! <br> Civilians Win!";
         resultMessage.style.color = "var(--accent-primary)";
-        resultText.textContent = correctlyGuessedNumber
-            ? "The Guesser cracked the code and found the exact secret number!" 
-            : "The Guesser successfully exposed the secret Saboteur(s)!";
+        resultText.textContent = "The group unmasked the true Imposter!";
     } else {
-        resultMessage.textContent = "Saboteurs Win!";
+        resultMessage.textContent = "Imposters Win!";
         resultMessage.style.color = "#e60012";
-        resultText.textContent = "The Saboteurs successfully threw everyone off the scent and remained hidden!";
+        resultText.textContent = "The Imposters successfully threw everyone off the scent and remained hidden!";
     }
 }
 
 function playAgain() {
     assignRoles();
-    assignSecretNumber();
+    assignSecretWord();
 
     game.currentPlayer = 0;
     cardRevealed = false;
@@ -625,24 +469,14 @@ function playAgain() {
     showScreen("role-screen");
 }
 
-function openModal() {
-    saboteurModal.classList.remove("hidden");
-}
-
-function closeModal() {
-    saboteurModal.classList.add("hidden");
-}
-
 function resetGame() {
     game.playerCount = 4;
     game.saboteurCount = 1;
     game.players = [];
     game.roles = [];
-    game.prompt = null;
-    game.secretNumber = null;
+    game.secretWord = null;
     game.currentPlayer = 0;
-    game.guessedNumber = null;
-    game.guessedSaboteurs = [];
+    game.guessedImposters = [];
 
     playerCountInput.value = 4;
     saboteurInput.value = 1;
@@ -651,7 +485,41 @@ function resetGame() {
     const inputs = playerInputs.querySelectorAll("input"); //clear names when New Game starts
     inputs.forEach(input => { input.value =""; });
 
-    randomizePlayersBtn.classList.remove("active-random");
+    randomizeImpostersBtn.classList.remove("active-random");
 
     showScreen("setup-screen");
 }
+/* ==========================
+    Event Listeners
+========================== */
+
+playersPlusBtn.addEventListener("click", increasePlayers); //controls the buttons
+playersMinusBtn.addEventListener("click", decreasePlayers);
+saboteurPlusBtn.addEventListener("click", increaseSaboteurs); 
+saboteurMinusBtn.addEventListener("click", decreaseSaboteurs);
+playerCountInput.addEventListener("input", handleSetupUpdates); //controls the input field
+startGameBtn.addEventListener("click", startGame);
+
+playAgainBtn.addEventListener("click", playAgain);
+nextPlayerBtn.addEventListener("click", nextPlayer);
+flipCard.addEventListener("click", handleCardFlip);
+
+discussionNextBtn.addEventListener("click", showGuessScreen);
+
+submitGuessBtn.addEventListener("click", submitGuess);
+newGameBtn.addEventListener("click", resetGame);
+
+
+randomizeImpostersBtn.addEventListener("click", () => {
+    randomizeImpostersBtn.classList.toggle("active-random");
+    const selectorWrap = document.getElementById("saboteur-selector-wrap");
+
+    if (randomizeImpostersBtn.classList.contains("active-random")) {
+        selectorWrap.classList.add("hidden");
+        game.saboteurCount = "random";
+    } else {
+        selectorWrap.classList.remove("hidden");
+        game.saboteurCount = parseInt(saboteurInput.value, 10);
+    }
+    validateSetup();
+});
