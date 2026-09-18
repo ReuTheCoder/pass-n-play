@@ -18,6 +18,16 @@ body[data-game="imposter"] {
     --accent-light: #f4fbe6;
 }
 
+body[data-game="signal-jam"] {
+    --accent-primary: #8b5cf6;
+    --accent-light: #f3e8ff;
+}
+
+body[data-game="outsider"] {
+    --accent-primary: #ff6d00;
+    --accent-light: #fff1e0;
+}
+
 :root {
     --shadow-small: 0 3px 0 #2b2b2b;
     --shadow-medium: 0 5px 0 #2b2b2b;

@@ -90,7 +90,7 @@ main {
 /* ====================================
    Game Library / Grid Setup
 ==================================== */
-/* grid setup */
+
 .game-library {
     display: grid;
     grid-template-columns: 1fr;
@@ -196,6 +196,29 @@ a.game-card:active {
     background-color: #74c600;
     color: #ffffff;
 }
+
+.game-card[href*="signal-jam"] {
+    background-color: #f3e8ff;
+}
+.game-card[href*="signal-jam"]:hover {
+    border-color: #8b5cf6;
+}
+.game-card[href*="signal-jam"] .game-info {
+    background-color: #8b5cf6;
+    color: #ffffff;
+}
+
+.game-card[href*="outsider"] {
+    background-color:#fff1e0;
+}
+.game-card[href*="outsider"]:hover {
+    border-color: #ff6d00;
+}
+.game-card[href*="outsider"] .game-info {
+    background-color:#ff6d00;
+    color: #ffffff;
+}
+
 
 div.game-card {
     background-color: #f5f5f7;
