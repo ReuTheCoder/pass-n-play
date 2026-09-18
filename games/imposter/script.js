@@ -137,19 +137,28 @@ function generatePlayerInputs() {
     playerInputs.innerHTML = "";
 
     for (let i = 0; i < game.playerCount; i++) {
+        const wrap = document.createElement("div");
+        wrap.className = "player-input-wrap";
+        wrap.innerHTML = `
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill player-input-icon" viewBox="0 0 16 16">
+            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+        </svg>
+        `;
+
         const input = document.createElement("input");
         input.type = "text";
         input.id = `player-name-${i}`;
         input.placeholder = `Player ${i + 1}`;
         input.className = "player-name-field";
 
-        if(savedNames[i]) { //keeps value saved in settings change after input
+        if(savedNames[i]) { 
             input.value = savedNames[i];
         }
-
-        playerInputs.appendChild(input);
+        wrap.appendChild(input);
+        playerInputs.appendChild(wrap);
     }
 }
+
 
 function updateSaboteurControls() {
 
@@ -238,7 +247,7 @@ function attachNameInputListeners() {
         input.removeEventListener("input", validateSetup);
         input.addEventListener("input", validateSetup);
     });
-} //should add live validation
+} //Update Idea: should add live validation
 
 //Helpers
 function increasePlayers() {
@@ -333,7 +342,7 @@ function showCurrentPlayer() {
     cardRevealed = false;
 
     const role = game.roles[game.currentPlayer];
-    if (role == "Imposter") {
+    if (role === "Imposter") {
         roleBack.innerHTML =  `
             <h2 style="color: #e60012;  -webkit-text-stroke: 1.5px #2b2b2b;"> You are the Imposter!</h2>
             <p style="margin-top:14px;"> You do not know the word! <br> Listen to clues and fake it till you make it!</p>
