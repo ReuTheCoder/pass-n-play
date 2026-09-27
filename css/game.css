@@ -618,6 +618,13 @@ header h1 {
     color: #4a4a4f;
 }
 
+#flip-back-hint {
+    color: var(--accent-primary);
+    font-weight: 700 !important;
+    margin-bottom: -12px;
+    margin-top: -20px;
+}
+
 /* ====================================
     Guess screen steps
 ==================================== */

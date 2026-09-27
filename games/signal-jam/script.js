@@ -26,6 +26,7 @@ const currentPlayerName = document.getElementById("current-player-name");
 const flipCard = document.getElementById("flip-card");
 const roleBack = document.getElementById("role-back");
 const nextPlayerBtn = document.getElementById("next-player-btn");
+const flipBackHint = document.getElementById("flip-back-hint");
 
 // Transmission Screen
 const timerDisplay = document.getElementById("timer-display");
@@ -235,7 +236,7 @@ startGameBtn.addEventListener("click", startGame);
     Role Generation
 ========================== */
 
-const wordBank = [
+const wordBank = [ //AI Generated
     "Lighthouse", "Compass", "Telescope", "Anchor", "Satellite",
     "Volcano", "Glacier", "Origami", "Alcohol", "Cactus",
     "Umbrella", "Horse", "Windmill", "Gasoline", "Bonfire",
@@ -296,6 +297,8 @@ function showCurrentPlayer() {
     currentPlayerName.textContent = game.players[game.currentPlayer];
     flipCard.classList.remove("flipped");
     cardRevealed = false;
+    flipBackHint.classList.add("hidden");
+    nextPlayerBtn.disabled = true;
 
     const role = game.roles[game.currentPlayer];
 
@@ -341,8 +344,15 @@ function handleCardFlip() {
     flipCard.classList.toggle("flipped");
     cardRevealed = flipCard.classList.contains("flipped");
 
-    nextPlayerBtn.disabled=true;
-    setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
+    if (cardRevealed){
+        nextPlayerBtn.disabled=true;
+        flipBackHint.classList.remove("hidden");
+        
+    } else {
+        flipBackHint.classList.add("hidden");
+        nextPlayerBtn.disabled = true;
+        setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
+    }
 }
 
 function nextPlayer() {

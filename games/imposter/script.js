@@ -30,6 +30,7 @@ const currentPlayerName = document.getElementById("current-player-name");
 const flipCard = document.getElementById("flip-card");
 const roleBack = document.getElementById("role-back");
 const nextPlayerBtn = document.getElementById("next-player-btn");
+const flipBackHint = document.getElementById("flip-back-hint");
 
 //Discussion Screen
 const discussionNextBtn = document.getElementById("discussion-next-btn");
@@ -72,7 +73,7 @@ const SETTINGS = { //constraints, basically
 
 let cardRevealed = false;
 
-const wordBank = {
+const wordBank = { //AI Generated
   objects: ["Chair","Table","Phone","Backpack","Mirror","Clock","Lamp","Notebook","Pen","Wallet","Keys","Bottle"],
   food: ["Pizza","Burger","Pasta","Rice","Soup","Sandwich","Salad","Tacos","Fries","Noodles","Ice Cream","Cake"],
   animals: ["Dog","Cat","Horse","Cow","Pig","Sheep","Goat","Chicken","Duck","Goose","Lion","Tiger"],
@@ -340,6 +341,8 @@ function showCurrentPlayer() {
     currentPlayerName.textContent = game.players[game.currentPlayer];
     flipCard.classList.remove("flipped");
     cardRevealed = false;
+    flipBackHint.classList.add("hidden");
+    nextPlayerBtn.disabled = true;
 
     const role = game.roles[game.currentPlayer];
     if (role === "Imposter") {
@@ -359,8 +362,15 @@ function handleCardFlip() {
     flipCard.classList.toggle("flipped");
     cardRevealed = flipCard.classList.contains("flipped");
 
-    nextPlayerBtn.disabled=true;
-    setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
+   if (cardRevealed){
+        nextPlayerBtn.disabled=true;
+        flipBackHint.classList.remove("hidden");
+        
+    } else {
+        flipBackHint.classList.add("hidden");
+        nextPlayerBtn.disabled = true;
+        setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
+    }
 }
 
 function nextPlayer() {

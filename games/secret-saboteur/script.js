@@ -23,6 +23,7 @@ const randomizePlayersBtn = document.getElementById("randomize-players-btn");
 const playerInputs = document.getElementById("player-inputs");
 
 const startGameBtn = document.getElementById("start-game-btn");
+const flipBackHint = document.getElementById("flip-back-hint");
 
 //Role Screen
 const currentPlayerName = document.getElementById("current-player-name");
@@ -82,7 +83,7 @@ const SETTINGS = { //constraints, basically
     maxGuess: 10
 };
 
-const prompts = [
+const prompts = [ //AI Generated
     { title: "Reasons to call emergency services", low: "Reasonable", high: "Ridiculous" },
     { title: "Places to nap", low: "Very comfortable", high: "Very uncomfortable" },
     { title: "Cool for a high-schooler", low: "Not cool", high: "Cool" },
@@ -490,6 +491,8 @@ function showCurrentPlayer() {
 
     flipCard.classList.remove("flipped");
     cardRevealed = false;
+    flipBackHint.classList.add("hidden");
+    nextPlayerBtn.disabled = true;
 
     const role = game.roles[game.currentPlayer];
     if (role == "Guesser") {
@@ -517,8 +520,15 @@ function handleCardFlip() {
     flipCard.classList.toggle("flipped");
     cardRevealed = flipCard.classList.contains("flipped");
 
-    nextPlayerBtn.disabled = true;
-    setTimeout(() => {nextPlayerBtn.disabled = false; }, 400);
+    if (cardRevealed){
+        nextPlayerBtn.disabled=true;
+        flipBackHint.classList.remove("hidden");
+        
+    } else {
+        flipBackHint.classList.add("hidden");
+        nextPlayerBtn.disabled = true;
+        setTimeout(() => { nextPlayerBtn.disabled = false; }, 400);
+    }
 }
 
 function nextPlayer() {
