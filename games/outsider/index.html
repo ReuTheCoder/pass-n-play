@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"> 
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400..800&family=Belanosima:wght@400;600;700&display=swap" rel="stylesheet">
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+        <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+        <title> Play - The Outsider </title>
+
+        <link rel="stylesheet" href="../../css/game.css">
+        <link rel="stylesheet" href="../../games/outsider/style.css">
+        <script src="script.js" defer></script>
+    </head>
+    <body data-game="outsider">
+        <a href="info.html" class="back-home-link"> ← Game Info </a>
+        <header>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-question-mark header-icon"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                The Outsider
+            </h1>
+           <h2 id="screen-title" aria-live="polite"> Game Setup </h2> 
+        </header>
+
+        <main>
+        <!-- ===================================
+            Setup & Player Names
+        ==================================== -->
+         <section id="setup-screen" class="screen" data-title="Game Setup">
+                <section id="player-count-section" class="setup-section">
+                    <h3>How Many Players?</h3>
+                    <div class="quantity-selector">
+                        <button type="button" id="players-minus"> - </button> 
+                        <input id="player-count" type="number" min="3" max="8" value="4" readonly >
+                        <button type="button" id="players-plus"> + </button> 
+                    </div>
+                    <p id="player-count-error" class="error-message hidden"> The Outsider only supports 3-8 players (for now) </p>
+                </section>
+
+         <section id="player-name-section" class="setup-section">
+                <h3>Enter Player Names</h3>
+                <div id="player-inputs"></div> 
+        </section>
+            <button type="button" id="start-game-btn" class="button-style" disabled>Start Game </button>
+        </section>
+    <!-- ===================================
+            Role Reveal
+    ==================================== -->
+        <section id="role-screen" class="screen hidden" data-title="Role Reveal">
+            <p class="sub-label-bar">Pass the device to</p> 
+                <h2 id="current-player-name"></h2>
+
+                <div class="flip-wrap">
+                    <div class="flip" id="flip-card">
+                        <div  id="role-front" class="face front">
+                            <h2>Tap to Reveal</h2>
+                        </div>
+                        <div class="face back" id="role-back"></div>
+                    </div>
+                </div>
+                <p id="flip-back-hint" class="setup-hint hidden">Flip your card back before passing the device!</p> 
+                <button  type="button" id="next-player-btn" class="button-style">Next → </button>
+        </section>
+
+    <!-- ===================================
+            Grid Discussion
+    ==================================== -->
+        <section id="grid-screen" class="screen hidden" data-title="The Grid"> <!-- Remove?-->
+            <p class="game-instruction grid-instruction">Pass the device to the table center so everyone can see it.</p>
+
+            <div class="grid-wrap">
+                <div class="grid-topic-spine">
+                    <span id="grid-topic-text"></span>
+                </div>
+                <div id="word-grid" class="word-grid"></div>
+            </div>
+
+            <button type="button" id="clues-done-btn" class="button-style"> Move to Accusations </button>    
+        </section>
+
+    <!-- ===================================
+          Accusaions (Voting)
+    ==================================== -->
+    <section id="accusation-screen" class="screen hidden" data-title="Accusations">
+            <h2 class="guess-screen-heading">Who is the Outsider?</h2>
+            <p class="game-instruction">Discuss as a group and vote on who you suspect doesn't know the secret word.</p>
+            <div class="card">
+                <h3>Select Suspects</h3>
+                <div id="outsider-choices" class="option-grid"></div> 
+            </div>
+            <button type="button" id="submit-accusation-btn" class="button-style" disabled>
+                Submit Vote
+            </button>    
+    </section>
+
+     <section id="final-guess-screen" class="screen hidden" data-title="Operation Uncovered?">
+            <h2 class="guess-screen-heading">Outsider: Guess the Word!</h2>
+            <p class="game-instruction" id="final-guess-instruction">You've been caught! Guess the secret word for one last chance to win.</p>
+            
+            <div id="final-guess-grid-wrap" class="grid-wrap">
+                <div class="grid-topic-spine">
+                    <span id="final-guess-topic-text"></span>
+                </div>
+                <div id="final-guess-grid" class="word-grid"></div>
+            </div>
+
+            <button type="button" id="show-grid-btn" class="secondary">Show Grid</button>
+            <p id="chosen-word-display" class="chosen-word-display">Chosen Word:<br><strong id="chosen-word-text"></strong></p>
+        
+            <button type="button" id="submit-final-guess-btn" class="button-style" disabled>
+                Lock In Guess
+            </button>    
+    </section>
+
+    <!-- ===================================
+        Results
+    ==================================== -->
+    <section id="results-screen" class="screen hidden" data-title="Results">
+
+            <div class="card important-result-card">
+                <h2 id="result-message" aria-live="polite"></h2>
+                <p id="result-text"></p>
+                <div class="results-score-summary">
+                     <p> The secret word was: <b id="real-word" style="color: var(--accent-primary);"></b></p>
+                </div>
+            </div>
+            <div id="outsider-reveal-card" class="card sab-card">
+                <div class="sab-card-content">
+                    <span class="sab-label">Outsider was</span>
+                    <strong id="outsider-name"></strong>
+                </div>
+            </div>
+
+            <div class="results-buttons-bundle">
+                <button type="button" id="play-again-btn" class="button-style">↻ Play Again</button>
+                <button type="button" id="new-game-btn"class="secondary">New Game</button>
+            </div>
+        </section>
+
+        </main>
+        
+    </body>
+    
+</html>
+

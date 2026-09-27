@@ -1,0 +1,272 @@
+.role-label {
+    font-family: 'Belanosima', sans-serif;
+    font-size: 1rem !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #6e6e73;
+    margin-bottom: -4px;
+}
+
+#player-name-section #player-inputs {
+    align-self: center;
+}
+
+/* ====================================
+   Guess Screen
+==================================== */
+.guess-screen-heading {
+    align-self: center;
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+    position: relative;
+}
+.guess-screen-heading::after {
+    content: "";
+    display: block;
+    position: relative;
+    margin: 4px auto 0 auto;
+    width: 100%;
+    height: 3px;
+    background-color: var(--accent-primary);
+    z-index: -1;
+}
+
+
+
+/* grid banner */
+.grid-instruction {
+    text-align: center;
+}
+
+/* gird */
+.grid-wrap {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    min-height: min(55vh, 420px);
+}
+
+.grid-topic-spine {
+    flex: 0 0 48px;
+    width: 48px;
+    padding: 12px 4px;
+    box-sizing: border-box;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-primary);
+    border: 3px solid #2b2b2b;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
+}
+
+.grid-topic-spine span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: 'Belanosima', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: 0.5px;
+    white-space: normal;
+    max-height: 100%;
+}
+
+.word-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.word-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Baloo Da 2', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    padding: 6px;
+    background-color: #fff;
+    border: 2px solid #2b2b2b;
+    border-radius: var(--radius-small);
+    box-shadow: var(--shadow-medium);
+    aspect-ratio: 1/1;
+}
+
+.word-cell span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* ====================================
+   Non-mobile grid — fit to viewport, no scroll
+==================================== */
+#grid-screen,
+#final-guess-screen {
+    max-height: calc(100vh - 32px); 
+    gap: 14px; 
+    overflow: hidden;
+    padding-bottom: 10px;
+}
+
+#grid-screen .grid-wrap,
+#final-guess-grid-wrap {
+    flex: 1;
+}
+
+#grid-screen .word-cell,
+#final-guess-grid-wrap .word-cell {
+    aspect-ratio: unset; 
+    padding: 4px; 
+}
+
+#grid-screen #clues-done-btn,
+#final-guess-screen #submit-final-guess-btn,
+#final-guess-screen #show-grid-btn {
+    flex: 0 1 auto; 
+    flex-shrink: 0;
+}
+
+#grid-screen .game-instruction,
+#final-guess-screen .game-instruction {
+    padding: 10px 16px;
+}
+
+.word-cell-long span {
+    font-size: 0.72rem;
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    body.grid-mode > .back-home-link, body.grid-mode > header {
+        display: none;
+    }
+
+    body.grid-mode .grid-instruction {
+        display: none;
+    }
+
+    body.grid-mode #clues-done-btn {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px;
+        font-size: 1.1rem;
+    }
+
+    #grid-screen {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        transform: rotate(90deg) translate(-50%, -50%);
+        transform-origin: top left;
+        width: 100vh;
+        height: 100vw;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        gap: 16px;
+        padding: 16px;
+        overflow: hidden;
+    }
+
+    #grid-screen .grid-wrap {
+        flex: 1;
+        min-height: 0;
+    }
+
+    #grid-screen #clues-done-btn {
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    #grid-screen .word-cell {
+        aspect-ratio: unset;
+    }
+}
+
+/* final guess */
+.word-cell.selectable {
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.word-cell.selectable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #2b2b2b;
+    background-color: var(--accent-light);
+}
+
+.word-cell.selectable.active {
+    background-color: var(--accent-primary) !important;
+    color: #fff !important;
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 #2b2b2b !important;
+}
+
+#show-grid-btn {
+    display: none;
+}
+
+.chosen-word-display {
+    display: none;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 8px;
+    padding: 12px 16px;
+    background-color: var(--accent-light); /* Drop? */
+    border: 2px solid #2b2b2b;
+    border-radius: var(--radius-small);
+}
+
+.chosen-word-display strong {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    #final-guess-grid-wrap {
+        display: none;
+    }
+    #show-grid-btn {
+        display: block;
+    }
+    .chosen-word-display.visible {
+        display: block;
+    }
+    body.final-guess-grid-mode > .back-home-link, body.final-guess-grid-mode > header {
+        display: none;
+    } 
+    body.final-guess-grid-mode #final-guess-screen > *:not(#final-guess-grid-wrap) {
+        display: none;
+    }
+    body.final-guess-grid-mode #final-guess-grid-wrap {
+        display: flex;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: rotate(90deg) translate(-50%, -50%);
+        transform-origin: top left;
+        width: 100vh;
+        height: 100vw;
+        min-height: 0;
+        margin: 0;
+        padding: 16px;
+        gap: 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    body.final-guess-grid-mode #final-guess-grid-wrap .word-cell {
+        aspect-ratio: unset;
+    }
+    #final-guess-screen .guess-screen-heading {
+        font-size: 1.2rem;
+    }
+}
