@@ -174,6 +174,13 @@ a.game-card:active {
     flex-shrink: 0;
 }
 
+.stat-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
     /* accents - copy these three lines to style accents for any new cards*/
 .game-card[href*="secret-saboteur"] {
     background-color: #e6f9ff;
