@@ -10,53 +10,6 @@
 }
 
 /* ====================================
-   Quantity Selectors (timer toggle)
-==================================== */
-
-.timer-controls-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.timer-toggle {
-    position: relative;
-    height: 52px; 
-    width: 40px;
-    background-color: #fff;
-    border: 3px solid #2b2b2b;
-    border-radius: var(--radius-small);
-    box-shadow: var(--shadow-small);
-    cursor: pointer;
-    padding: 0;
-    flex-shrink: 0;
-}
-
-.timer-toggle-knob {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: calc(100% - 4px);
-    height: 20px;
-    background-color: #aeaeac;
-    border: 2px solid #2b2b2b;
-    border-radius: 4px;
-    transition: transform 0.15s ease, background-color 0.15s ease;
-}
-
-.timer-toggle[aria-checked="true"] .timer-toggle-knob {
-    background-color: var(--accent-primary);
-    transform: translateY(24px);
-}
-
-#timer-duration-wrap .quantity-selector {
-    width: 200px;
-}
-
-/* ====================================
    Transmission
 ==================================== */
 .transmission-banner {
@@ -81,32 +34,9 @@
 }
 
 /* ====================================
-   Timer + Round ending
+    Round ending
 ==================================== */
-.timer-display-wrap {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
 
-.timer-display {
-    font-family: 'Belanosima', sans-serif;
-    font-size: 3rem;
-    font-weight: 700;
-    color: #2b2b2b;
-    background-color: #fff;
-    border: 3px solid #2b2b2b;
-    border-radius: var(--radius-medium);
-    box-shadow: var(--shadow-medium);
-    padding: 12px 32px;
-    letter-spacing: 1px;
-    font-variant-numeric: tabular-nums;
-}
-
-.timer-display.timer-urgent {
-    color: #e60012;
-    border-color: #e60012;
-}
 #end-round-btn {
     max-width: 280px;
     margin: 0 auto;
