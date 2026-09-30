@@ -375,6 +375,8 @@ flipCard.addEventListener("click", handleCardFlip);
 let countdownInterval = null;
 
 function initializeTransmissionPhase() {
+    clearInterval(countdownInterval);
+    timerDisplay.classList.remove("timer-urgent");
     responseButtons.forEach(btn => btn.disabled = false);
 
     if (game.timerEnabled) {
