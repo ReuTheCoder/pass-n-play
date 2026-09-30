@@ -21,6 +21,16 @@ const categoryChoicesGrid = document.getElementById("category-choices-grid");
 
 const randomizeImpostersBtn = document.getElementById("randomize-players-btn");
 
+const timerToggleBtn = document.getElementById("timer-toggle-btn");
+const timerDurationWrap = document.getElementById("timer-duration-wrap");
+const timerDisabledHint = document.getElementById("timer-disabled-hint");
+const roundDurationInput = document.getElementById("round-duration");
+const durationMinusBtn = document.getElementById("duration-minus");
+const durationPlusBtn = document.getElementById("duration-plus");
+
+const timerDisplay = document.getElementById("timer-display");
+const audioAlarm = document.getElementById("audio-alarm");
+
 const playerInputs = document.getElementById("player-inputs");
 
 const startGameBtn = document.getElementById("start-game-btn");
@@ -58,6 +68,9 @@ const game = {
     playerCount: 4,
     saboteurCount: 1,
     selectedCategories: ["objects"],
+    timerEnabled: true,
+    roundDuration: 3,
+    remainingSeconds: 0,
     players: [],
     roles: [],
     secretWord: null,
@@ -68,7 +81,9 @@ const game = {
 const SETTINGS = { //constraints, basically
     minPlayers: 3,
     maxPlayers: 10,
-    twoSaboteurMinPlayers: 6 
+    twoSaboteurMinPlayers: 6 ,
+    minDuration: 1,
+    maxDuration: 10
 };
 
 let cardRevealed = false;
@@ -394,6 +409,7 @@ function initializeDiscussionPhase() {
     instructionBanner.innerHTML = `<svg xmlns="http://w3.org" width="18" height="18" fill="currentColor" class="bi bi-megaphone-fill" viewBox="0 0 16 16" style="color: var(--accent-primary); transform: scaleX(-1);"><path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0zm-1 .724c-2.067.95-4.539 1.481-7 1.656v6.237a25 25 0 0 1 1.088.085c2.053.204 4.038.668 5.912 1.56zm-8 7.841V4.934c-.68.027-1.399.043-2.008.053A2.02 2.02 0 0 0 0 7v2c0 1.106.896 1.996 1.994 2.009l.496.008a64 64 0 0 1 1.51.048m1.39 1.081q.428.032.85.078l.253 1.69a1 1 0 0 1-.983 1.187h-.548a1 1 0 0 1-.916-.599l-1.314-2.48a66 66 0 0 1 1.692.064q.491.026.966.06"/></svg>
     <strong>${randomLeader}</strong> must state their clue first!`;
 
+    startDiscussionTimer();
     showScreen("discussion-screen");
 }
 
@@ -401,7 +417,7 @@ function initializeDiscussionPhase() {
     Guessing
 ========================== */
 function showGuessScreen() {
-
+    clearInterval(countdownInterval);
     game.guessedImposters = [];
     submitGuessBtn.disabled = true;
     voteError.classList.add("hidden");
@@ -542,3 +558,76 @@ randomizeImpostersBtn.addEventListener("click", () => {
     }
     validateSetup();
 });
+
+/* ==========================
+    Timer stuff
+========================== */
+let countdownInterval = null;
+
+function increaseDuration() {
+    let val = parseInt(roundDurationInput.value, 10) || SETTINGS.minDuration;
+    if (val <  SETTINGS.maxDuration) {
+        roundDurationInput.value = val +1;
+        game.roundDuration = val + 1;
+    }
+}
+function decreaseDuration(){
+    let val = parseInt(roundDurationInput.value, 10) || SETTINGS.minDuration;
+    if (val >  SETTINGS.minDuration) {
+        roundDurationInput.value = val - 1;
+        game.roundDuration = val - 1;
+    }
+}
+
+function startDiscussionTimer() {
+    clearInterval(countdownInterval);                 
+    timerDisplay.classList.remove("timer-urgent");    
+
+    if (game.timerEnabled) {
+        timerDisplay.classList.remove("hidden");
+        game.remainingSeconds = game.roundDuration * 60;
+        updateTimerDisplay();
+        countdownInterval = setInterval(tickCountdown, 1000);
+    } else {
+        timerDisplay.classList.add("hidden");
+    }
+}
+
+function tickCountdown() {
+    game.remainingSeconds--;
+    updateTimerDisplay();
+
+    if (game.remainingSeconds <= 10 ) {
+        timerDisplay.classList.add("timer-urgent");
+    }
+    if (game.remainingSeconds <= 0) {
+        clearInterval(countdownInterval);
+        handleTimeExpired();
+    }
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(game.remainingSeconds / 60);
+    const seconds = game.remainingSeconds % 60;
+    timerDisplay.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function handleTimeExpired() {
+    discussionNextBtn.disabled = true;
+    audioAlarm.currentTime = 0;
+    audioAlarm.play().catch(() => {});
+
+    setTimeout(() => {
+        discussionNextBtn.disabled = false;
+        showGuessScreen();
+    }, 1500);
+}
+
+timerToggleBtn.addEventListener("click", () => {
+    game.timerEnabled = !game.timerEnabled;
+    timerToggleBtn.setAttribute("aria-checked", String(game.timerEnabled));
+    timerDurationWrap.classList.toggle("hidden", !game.timerEnabled);
+    timerDisabledHint.classList.toggle("hidden", game.timerEnabled);
+});
+durationPlusBtn.addEventListener("click", increaseDuration);
+durationMinusBtn.addEventListener("click", decreaseDuration);
