@@ -3,8 +3,8 @@
 A one-device party game hub in which players pass a single device around the table and play social deduction games for all ages with no app download, no accounts, and no second screen required.
 
 <p align="center">
-  <img src="assets/images/desktop_v1.0.png" alt="Website Home Page on Desktop" height="510"> 
-  <img src="assets/images/mobile_v1.0.jpeg" alt="Website Home Page on Smaller Screens" height="510"> 
+  <img src="assets/images/desktop_v1.0.png" alt="Website Home Page on Desktop" height="400"> 
+  <img src="assets/images/mobile_v1.0.jpeg" alt="Website Home Page on Smaller Screens" height="400"> 
 </p>
 
 Quick Start:
